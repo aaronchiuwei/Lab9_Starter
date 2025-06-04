@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 9</title>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "532e5a21fdf24636b0cc28abfb5eca37"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+
   <style>
     button {
       margin: 3px;
@@ -91,17 +99,150 @@
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        let output = document.querySelector('output');
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
+        let operator = document.querySelector('#operator').value;
+
+        if (operator == '/' && parseFloat(secondNum) === 0) {
+          throw new CalculationError('Cannot divide by zero', 'division');
+        }
+
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new ValidationError('Must be numbers');
+        }
+
+        if (!firstNum || !secondNum) {
+          throw new ValidationError('Must have both numbers');
+        }
+
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (error) {
+        console.error('Calculation error:', error);
+        
+        if (error instanceof ValidationError) {
+          document.querySelector('output').innerHTML = `Validation Error: ${error.message}`;
+        } else if (error instanceof CalculationError) {
+          document.querySelector('output').innerHTML = `Calculation Error: ${error.message}`;
+        } else {
+          document.querySelector('output').innerHTML = `Unexpected Error: ${error.message}`;
+        }
+        
+        displayError(`Calculator: ${error.name} - ${error.message}`);
+      } finally {
+        console.log('Calculation completed');
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
     // Start your code here
     // You may move this JS to another file if you wish
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Console Log Demo');
+    });
+
+    errorBtns[1].addEventListener('click', () => {
+      console.error('Console Error Demo');
+    });
+
+    errorBtns[2].addEventListener('click', () => {
+      console.count('Count Button');
+    });
+
+    errorBtns[3].addEventListener('click', () => {
+      console.warn('Console Warn Button');
+    });
+
+    errorBtns[4].addEventListener('click', () => {
+      console.assert(2 === 3, 'The number does not equal 3');
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.clear();
+      console.log('Console was cleared');
+    });
+
+    errorBtns[6].addEventListener('click', () => {
+      console.dir(document.querySelector('button'));
+    });
+
+    errorBtns[7].addEventListener('click', () => {
+      console.dirxml(document.querySelector('button'));
+    });
+
+    errorBtns[8].addEventListener('click', () => {
+      console.group();
+    });
+    
+    errorBtns[9].addEventListener('click', () => {
+      console.groupEnd();
+    });
+
+    errorBtns[10].addEventListener('click', () => {
+      const courses = [
+        { name: 'Software Engineering', num: 110 },
+        { name: 'Programming Languages', num: 130 },
+        { name: 'Advanced Software Engineering', num: 112 }
+      ];
+      console.table(courses);
+    });
+    
+    errorBtns[11].addEventListener('click', () => {
+      console.time('Timer Button');
+    });
+
+    errorBtns[12].addEventListener('click', () => {
+      console.timeEnd('Timer Button');
+    });
+
+    errorBtns[13].addEventListener('click', () => {
+      deep();
+    });
+    
+    errorBtns[14].addEventListener('click', () => {
+      boom();
+    });
+
+    function deep() {
+      deeper();
+    }
+    
+    function deeper() {
+      deepest();
+    }
+    
+    function deepest() {
+      console.trace();
+    }
+
+    class ValidationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+      }
+    }
+
+    class CalculationError extends Error {
+      constructor(message, operation) {
+        super(message);
+        this.name = "CalculationError";
+        this.operation = operation;
+      }
+    }
+
+    window.addEventListener('error', function(errorEvent) {
+      console.log('Global error caught:', {
+        message: errorEvent.message,
+        filename: errorEvent.filename,
+        lineno: errorEvent.lineno,
+        colno: errorEvent.colno,
+        error: errorEvent.error
+      }); 
+    });
+
+
   </script>
 </body>
 
